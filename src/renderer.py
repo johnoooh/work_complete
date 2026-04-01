@@ -154,7 +154,7 @@ def render_dashboard(data: dict) -> str:
   </div>
 
   <div class="chart-row">
-    <div class="chart-box wide"><div id="chart-jobs-time" style="height:300px"></div></div>
+    <div class="chart-box wide" style="position:relative"><div id="chart-jobs-time" style="height:300px"></div><div id="jobs-time-tooltip" style="display:none;position:absolute;top:40px;right:20px;background:rgba(22,27,34,0.95);border:1px solid #30363d;border-radius:6px;padding:8px 12px;font-size:12px;color:#e6edf3;pointer-events:none;z-index:10;line-height:1.6"></div></div>
     <div class="chart-box narrow"><div id="chart-user-bar" style="height:300px"></div></div>
   </div>
 
