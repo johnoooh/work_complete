@@ -597,7 +597,7 @@ function renderChartWaitUserBox() {
       type: 'box',
       marker: { color: getUserColor(user) },
       boxmean: true,
-      hovertemplate: '%{y:.1f}' + unit + '<extra>%{x}</extra>',
+      hovertemplate: '%{y:.2f}' + unit + '<extra>%{x}</extra>',
     };
   });
   const unitLabel = yAxisConf.title.includes('hours') ? 'hours' : yAxisConf.title.includes('minutes') ? 'minutes' : 'seconds';
