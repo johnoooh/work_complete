@@ -178,7 +178,10 @@ function renderChartJobsTime() {
   const hours = getFilteredHours();
   const labels = formatHourLabels(hours);
   const traces = getVisibleUsers().map(user => {
-    const yVals = hours.map(h => (DATA.hourly_by_user[user] || {})[h] || 0);
+    const yVals = hours.map(h => {
+      const v = (DATA.hourly_by_user[user] || {})[h] || 0;
+      return v > 0 ? v : null;
+    });
     const col = getUserColor(user);
     return {
       name: user,
@@ -191,12 +194,13 @@ function renderChartJobsTime() {
       line: { color: col },
       hovertemplate: '%{y} jobs<extra>' + user + '</extra>',
     };
-  }).filter(t => t.y.some(v => v > 0));
+  }).filter(t => t.y.some(v => v !== null));
   const layout = Object.assign({}, DARK_LAYOUT, {
     title: { text: 'Total Jobs Over Time', font: { color: '#e6edf3' } },
     xaxis: Object.assign({}, DARK_LAYOUT.xaxis),
     yaxis: Object.assign({}, DARK_LAYOUT.yaxis, { title: 'Jobs' }),
     hovermode: 'closest',
+    stackgaps: 'infer zero',
     showlegend: true,
   });
   Plotly.react('chart-jobs-time', traces, layout, PLOTLY_CONFIG);
