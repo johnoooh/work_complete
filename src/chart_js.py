@@ -219,9 +219,10 @@ function renderChartUserBar() {
   const layout = Object.assign({}, DARK_LAYOUT, {
     title: { text: 'Jobs by User <span style="font-size:11px;color:#8b949e">(click bar for details)</span>', font: { color: '#e6edf3' } },
     xaxis: Object.assign({}, DARK_LAYOUT.xaxis, { title: 'Total Jobs', rangemode: 'tozero' }),
-    yaxis: Object.assign({}, DARK_LAYOUT.yaxis),
+    yaxis: Object.assign({}, DARK_LAYOUT.yaxis, { tickmode: 'linear', dtick: 1 }),
+    height: Math.max(400, sorted.length * 28 + 80),
     showlegend: false,
-    margin: Object.assign({}, DARK_LAYOUT.margin, { l: 100 }),
+    margin: Object.assign({}, DARK_LAYOUT.margin, { l: Math.max(100, Math.max(...sorted.map(u => u.length)) * 8 + 20) }),
   });
   const el = document.getElementById('chart-user-bar');
   if (el) {
