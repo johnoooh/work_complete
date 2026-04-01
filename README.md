@@ -1,4 +1,6 @@
-# CMOBIC CPU Queue Dashboard
+# Work Complete
+
+> *"Work complete!"* — the Peon, Warcraft II & III
 
 A self-contained HTML dashboard for monitoring SLURM job activity on the `cmobic_cpu` partition. A Python script reads daily job JSON files and generates a single interactive HTML file with Plotly.js charts — no server required.
 
@@ -54,15 +56,16 @@ Jobs with missing timestamps (pending/cancelled) are skipped.
 | 2 | Total Jobs Over Time | Stacked area | Hourly submissions stacked by user |
 | 3 | Jobs by User | Horizontal bar | Click a bar to open the drill-down panel |
 | 4 | Submissions by User | Line | One line per user, hourly bins |
-| 5 | Process Breakdown | Sortable table | Avg wait + run per process type (hidden until user selected) |
-| 5b | Sample Breakdown | Bar | Job counts per sample ID (tab in drill-down) |
-| 6 | Memory Req vs Used | Scatter | Diagonal = perfect efficiency; dots below = waste |
-| 7 | Queue Wait Time | Line + band | Hourly median with p25-p75 shaded band |
-| 8 | Wait Time by User | Box plot | Distribution of queue wait per user |
-| 9 | Wait Time by User | Line | Hourly avg wait per user over time |
-| 10 | CPU Efficiency | Box plot | CPU time / (elapsed x CPUs) per user |
-| 11 | Node Utilization | Heatmap | Nodes x hours, color = job count |
-| 12 | Failed Jobs | Stacked bar | Failed/timeout/cancelled counts by user |
+| 5 | Running Jobs Over Time | Stacked area | Concurrent running jobs per user (start-to-end overlap) |
+| 6 | Process Breakdown | Sortable table | Avg wait + run per process type (hidden until user selected) |
+| 6b | Sample Breakdown | Bar | Job counts per sample ID (tab in drill-down) |
+| 7 | Memory Req vs Used | Scatter | Diagonal = perfect efficiency; dots below = waste |
+| 8 | Queue Wait Time | Line + band | Hourly median with p25-p75 shaded band |
+| 9 | Wait Time by User | Box plot | Distribution of queue wait per user |
+| 10 | Wait Time by User | Line | Hourly avg wait per user over time |
+| 11 | CPU Efficiency | Box plot | CPU time / (elapsed x CPUs) per user |
+| 12 | Node Utilization | Heatmap | Nodes x hours, color = job count |
+| 13 | Failed Jobs | Stacked bar | Failed/timeout/cancelled counts by user |
 
 ### ID Extraction
 
