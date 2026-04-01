@@ -31,24 +31,47 @@ const STATE_COLORS = {
 let currentRange = '7d';
 let selectedUser = null;
 let drilldownTab = 'process';
-let filteredUser = '';  // empty = all users
+let selectedUsers = new Set();  // empty = all users
 
 function getVisibleUsers() {
-  return filteredUser ? [filteredUser] : DATA.users;
+  return selectedUsers.size > 0 ? DATA.users.filter(u => selectedUsers.has(u)) : DATA.users;
 }
 
-function setUserFilter(user) {
-  filteredUser = user;
-  if (user) {
-    selectedUser = user;
+function toggleUser(user) {
+  if (selectedUsers.has(user)) {
+    selectedUsers.delete(user);
+  } else {
+    selectedUsers.add(user);
+  }
+  updateChips();
+  // Auto-show drilldown for single user selection
+  if (selectedUsers.size === 1) {
+    selectedUser = [...selectedUsers][0];
     document.getElementById('drilldown-container').style.display = 'block';
-    document.getElementById('drilldown-user-name').textContent = user;
+    document.getElementById('drilldown-user-name').textContent = selectedUser;
   } else {
     selectedUser = null;
     document.getElementById('drilldown-container').style.display = 'none';
   }
   renderAllCharts();
   updateKPIs();
+}
+
+function clearUserFilter() {
+  selectedUsers.clear();
+  updateChips();
+  selectedUser = null;
+  document.getElementById('drilldown-container').style.display = 'none';
+  renderAllCharts();
+  updateKPIs();
+}
+
+function updateChips() {
+  document.querySelectorAll('.user-chip[data-user]').forEach(chip => {
+    chip.classList.toggle('active', selectedUsers.has(chip.dataset.user));
+  });
+  const allChip = document.querySelector('.chip-all');
+  if (allChip) allChip.classList.toggle('active', selectedUsers.size === 0);
 }
 
 function getUserColor(user) {
@@ -269,10 +292,7 @@ function renderChartUserBar() {
     Plotly.react('chart-user-bar', traces, layout, PLOTLY_CONFIG);
     el.on('plotly_click', data => {
       if (data.points && data.points[0]) {
-        selectedUser = data.points[0].y;
-        document.getElementById('drilldown-container').style.display = 'block';
-        document.getElementById('drilldown-user-name').textContent = selectedUser;
-        renderDrilldown();
+        toggleUser(data.points[0].y);
       }
     });
   }
@@ -769,14 +789,21 @@ function renderAllCharts() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Populate user filter dropdown
-  const sel = document.getElementById('user-filter');
-  if (sel) {
+  // Build user filter chips
+  const chipContainer = document.getElementById('user-chips');
+  if (chipContainer) {
+    const allChip = document.createElement('span');
+    allChip.className = 'user-chip chip-all active';
+    allChip.textContent = 'All';
+    allChip.onclick = clearUserFilter;
+    chipContainer.appendChild(allChip);
     DATA.users.forEach(u => {
-      const opt = document.createElement('option');
-      opt.value = u;
-      opt.textContent = u;
-      sel.appendChild(opt);
+      const chip = document.createElement('span');
+      chip.className = 'user-chip';
+      chip.dataset.user = u;
+      chip.textContent = u;
+      chip.onclick = () => toggleUser(u);
+      chipContainer.appendChild(chip);
     });
   }
   updateKPIs();

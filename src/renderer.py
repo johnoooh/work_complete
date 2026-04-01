@@ -28,11 +28,13 @@ body { background: #0d1117; color: #e6edf3; font-family: system-ui, -apple-syste
   padding: 12px 0 20px; border-bottom: 1px solid #21262d; margin-bottom: 16px; }
 .header h1 { font-size: 1.25rem; font-weight: 600; color: #e6edf3; }
 .controls { display: flex; align-items: center; gap: 12px; }
-#user-filter { background: #161b22; border: 1px solid #30363d; color: #e6edf3;
-  padding: 6px 12px; border-radius: 6px; font-size: 0.875rem; cursor: pointer;
-  min-width: 150px; }
-#user-filter:hover { border-color: #58a6ff; }
-#user-filter option { background: #161b22; color: #e6edf3; }
+#user-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.user-chip { background: #161b22; border: 1px solid #30363d; color: #8b949e;
+  padding: 4px 10px; border-radius: 14px; font-size: 0.75rem; cursor: pointer;
+  transition: all 0.15s; user-select: none; }
+.user-chip:hover { border-color: #58a6ff; color: #e6edf3; }
+.user-chip.active { border-color: #58a6ff; color: #e6edf3; background: #1f2937; }
+.user-chip.chip-all { font-weight: 600; }
 .toggle { display: flex; gap: 4px; background: #161b22; border: 1px solid #30363d;
   border-radius: 6px; padding: 4px; }
 .toggle-btn { background: transparent; border: none; color: #8b949e;
@@ -139,9 +141,7 @@ def render_dashboard(data: dict) -> str:
   <div class="header">
     <h1>CMOBIC CPU Queue Dashboard</h1>
     <div class="controls">
-      <select id="user-filter" onchange="setUserFilter(this.value)">
-        <option value="">All Users</option>
-      </select>
+      <div id="user-chips"></div>
       <div class="toggle">
         <button class="toggle-btn" data-range="1d" onclick="setRange('1d')">1 Day</button>
         <button class="toggle-btn active" data-range="7d" onclick="setRange('7d')">7 Days</button>
