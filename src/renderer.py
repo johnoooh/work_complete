@@ -82,6 +82,25 @@ body { background: #0d1117; color: #e6edf3; font-family: system-ui, -apple-syste
   display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
 .close-btn:hover { border-color: #f85149; color: #f85149; }
 
+/* About modal */
+.about-btn { background: transparent; border: 1px solid #30363d; color: #8b949e;
+  padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.875rem;
+  transition: all 0.15s; }
+.about-btn:hover { border-color: #58a6ff; color: #e6edf3; }
+#about-modal { display:none; position:fixed; inset:0; z-index:100; background:rgba(0,0,0,0.7);
+  align-items:center; justify-content:center; }
+#about-modal.show { display:flex; }
+.about-content { background:#161b22; border:1px solid #30363d; border-radius:12px;
+  max-width:720px; width:90%; max-height:80vh; overflow-y:auto; padding:24px;
+  color:#e6edf3; font-size:0.875rem; line-height:1.7; }
+.about-content h2 { font-size:1.1rem; margin-bottom:16px; color:#58a6ff; }
+.about-content h3 { font-size:0.9rem; margin:16px 0 4px; color:#e6edf3; }
+.about-content p { color:#8b949e; margin-bottom:8px; }
+.about-content code { background:#21262d; padding:1px 5px; border-radius:3px; font-size:0.8rem; }
+.about-close { float:right; background:transparent; border:none; color:#8b949e;
+  font-size:1.5rem; cursor:pointer; line-height:1; }
+.about-close:hover { color:#f85149; }
+
 /* Footer */
 .footer { text-align: center; color: #484f58; font-size: 11px; margin-top: 20px; padding: 12px; }
 """
@@ -141,6 +160,7 @@ def render_dashboard(data: dict) -> str:
   <div class="header">
     <h1>CMOBIC CPU Queue Dashboard</h1>
     <div class="controls">
+      <button class="about-btn" onclick="document.getElementById('about-modal').classList.add('show')">About</button>
       <div class="toggle">
         <button class="toggle-btn" data-range="1d" onclick="setRange('1d')">1 Day</button>
         <button class="toggle-btn active" data-range="7d" onclick="setRange('7d')">7 Days</button>
@@ -202,6 +222,53 @@ def render_dashboard(data: dict) -> str:
 
   <div class="chart-row">
     <div class="chart-box full"><div id="chart-failed" style="height:280px"></div></div>
+  </div>
+
+  <div id="about-modal" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="about-content">
+      <button class="about-close" onclick="document.getElementById('about-modal').classList.remove('show')">&times;</button>
+      <h2>About This Dashboard</h2>
+      <p>Reads <code>job_YYYY-MM-DD.json</code> files exported from SLURM <code>sacct</code>. Each file is a JSON array of completed job records from the past 7 days.</p>
+
+      <h3>KPI Cards</h3>
+      <p>Total jobs, active users, median queue wait time, median memory efficiency (<code>MaxRSS / ReqMem</code>), and failed job count. Updates when the time range or user filter changes.</p>
+
+      <h3>Total Jobs Over Time</h3>
+      <p>Stacked area chart. Each hour bucket counts jobs whose <code>submit</code> timestamp falls in that hour, grouped by user.</p>
+
+      <h3>Jobs by User</h3>
+      <p>Horizontal bar chart of total job count per user in the selected time range. Click a bar to toggle that user in the filter and open the drilldown panel.</p>
+
+      <h3>Job Submissions by User Over Time</h3>
+      <p>Line chart with one line per user showing hourly submission counts. Zero-value hours show as gaps (null) to keep hover clean.</p>
+
+      <h3>Running Jobs Over Time</h3>
+      <p>Stacked area chart showing <em>concurrent</em> running jobs. For each hour, counts jobs where <code>start &le; hour &le; end</code>. Reveals actual cluster utilization vs. submission patterns.</p>
+
+      <h3>Memory Requested vs Used</h3>
+      <p>Scatter plot: x = <code>req_mem_mb</code> (converted to GB), y = <code>max_rss_mb</code> (peak RSS, converted to GB). The dashed diagonal is the 1:1 line &mdash; points below it indicate over-requested memory.</p>
+
+      <h3>Queue Wait Time</h3>
+      <p>Median wait time per hour with a shaded p25&ndash;p75 band. Wait = <code>start - submit</code> in seconds.</p>
+
+      <h3>Wait Time by User (Box Plot)</h3>
+      <p>Distribution of queue wait times per user. Shows median, quartiles, and outliers. Values are converted to hours, minutes, or seconds based on the data range.</p>
+
+      <h3>Wait Time by User Over Time</h3>
+      <p>Hourly average wait time per user as a line chart.</p>
+
+      <h3>CPU Efficiency</h3>
+      <p>Box plot of <code>cpu_time_raw / (elapsed &times; alloc_cpus)</code> per user. A value of 1.0 means all allocated CPU time was used. Values near 0 indicate idle cores.</p>
+
+      <h3>Memory Efficiency</h3>
+      <p>Box plot of <code>max_rss_mb / req_mem_mb</code> per user. Values near 1.0 mean memory was well-utilized; low values mean memory was over-requested.</p>
+
+      <h3>Node Utilization Heatmap</h3>
+      <p>Nodes (y) vs hours (x), colored by job count. Shows which nodes are busy and when.</p>
+
+      <h3>Failed Jobs by User</h3>
+      <p>Stacked bar chart of non-COMPLETED jobs grouped by state (FAILED, TIMEOUT, CANCELLED, etc.) per user.</p>
+    </div>
   </div>
 
   <div class="footer">Generated: {timestamp} | Data: {days} days, {jobs} jobs</div>
