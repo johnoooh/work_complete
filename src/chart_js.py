@@ -173,25 +173,27 @@ function updateKPIs() {
 
 def _chart_jobs_time_js() -> str:
     return """
-// ── Chart 2: Total Jobs Over Time (stacked area) ─────────────────────────────
+// ── Chart 2: Total Jobs Over Time (line) ─────────────────────────────────────
 function renderChartJobsTime() {
   const hours = getFilteredHours();
   const labels = formatHourLabels(hours);
   const traces = getVisibleUsers().map(user => {
-    const yVals = hours.map(h => (DATA.hourly_by_user[user] || {})[h] || 0);
-    const col = getUserColor(user);
+    const yVals = hours.map(h => {
+      const v = (DATA.hourly_by_user[user] || {})[h] || 0;
+      return v > 0 ? v : null;
+    });
     return {
       name: user,
       x: labels,
       y: yVals,
       type: 'scatter',
-      mode: 'none',
-      stackgroup: 'one',
-      fillcolor: hexToRgba(col, 0.5),
-      line: { color: col },
-      hoverinfo: 'none',
+      mode: 'lines',
+      line: { color: getUserColor(user), width: 2 },
+      opacity: 0.7,
+      connectgaps: false,
+      hovertemplate: '%{y} jobs<extra>' + user + '</extra>',
     };
-  }).filter(t => t.y.some(v => v > 0));
+  }).filter(t => t.y.some(v => v !== null));
   const layout = Object.assign({}, DARK_LAYOUT, {
     title: { text: 'Total Jobs Over Time', font: { color: '#e6edf3' } },
     xaxis: Object.assign({}, DARK_LAYOUT.xaxis),
@@ -199,36 +201,7 @@ function renderChartJobsTime() {
     hovermode: 'x',
     showlegend: true,
   });
-  const el = document.getElementById('chart-jobs-time');
-  Plotly.react(el, traces, layout, PLOTLY_CONFIG);
-  // Custom hover: show only users with >0 jobs at the hovered time point
-  el.addEventListener('mousemove', function(e) {
-    const tooltip = document.getElementById('jobs-time-tooltip');
-    if (tooltip && tooltip.style.display === 'block') {
-      const rect = el.getBoundingClientRect();
-      tooltip.style.left = (e.clientX - rect.left + 15) + 'px';
-      tooltip.style.top = (e.clientY - rect.top - 10) + 'px';
-    }
-  });
-  el.on('plotly_hover', function(evtData) {
-    if (!evtData.points || !evtData.points[0]) return;
-    const idx = evtData.points[0].pointIndex;
-    const lines = [];
-    traces.forEach(t => {
-      const v = t.y[idx];
-      if (v > 0) lines.push('<span style="color:' + t.line.color + '">\u25CF</span> ' + t.name + ': ' + v + ' jobs');
-    });
-    if (!lines.length) return;
-    const tooltip = document.getElementById('jobs-time-tooltip');
-    if (tooltip) {
-      tooltip.innerHTML = '<b>' + traces[0].x[idx] + '</b><br>' + lines.join('<br>');
-      tooltip.style.display = 'block';
-    }
-  });
-  el.on('plotly_unhover', function() {
-    const tooltip = document.getElementById('jobs-time-tooltip');
-    if (tooltip) tooltip.style.display = 'none';
-  });
+  Plotly.react('chart-jobs-time', traces, layout, PLOTLY_CONFIG);
 }
 """
 
