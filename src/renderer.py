@@ -268,6 +268,11 @@ def render_dashboard(data: dict) -> str:
 
       <h3>Failed Jobs by User</h3>
       <p>Stacked bar chart of non-COMPLETED jobs grouped by state (FAILED, TIMEOUT, CANCELLED, etc.) per user.</p>
+
+      <h3>Limitations</h3>
+      <p>This dashboard is regenerated once every 24 hours (daily at 8 AM via cron). It does not reflect real-time cluster state &mdash; jobs submitted or completed since the last generation will not appear until the next run.</p>
+      <p>Data comes from <code>sacct</code> export of completed jobs only. Currently running or pending jobs are not included. Jobs with missing timestamps (e.g. cancelled before starting) are skipped.</p>
+      <p>The "Running Jobs Over Time" chart estimates concurrency at hourly granularity &mdash; short jobs that start and finish within the same hour are counted once for that hour, but sub-hour overlap is not resolved.</p>
     </div>
   </div>
 
