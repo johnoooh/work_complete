@@ -589,20 +589,28 @@ function renderChartWaitUserBox() {
   const yAxisConf = makeTimeYAxis(allVals, 'Wait');
   const traces = users.map(user => {
     const vals = (DATA.wait_by_user[user] || []).map(Number);
+    // Convert to the display unit so hover stats show readable values
+    const divisor = yAxisConf.title.includes('hours') ? 3600 : yAxisConf.title.includes('minutes') ? 60 : 1;
+    const unit = divisor === 3600 ? 'hrs' : divisor === 60 ? 'min' : 'sec';
     return {
       name: user,
-      y: vals,
-      text: vals.map(v => formatSeconds(v)),
+      y: vals.map(v => v / divisor),
       type: 'box',
       marker: { color: getUserColor(user) },
       boxmean: true,
-      hovertext: vals.map(v => formatSeconds(v)),
-      hoverinfo: 'name+text',
+      hovertemplate: 'max: %{upperfence:.1f} ' + unit +
+        '<br>q3: %{q3:.1f} ' + unit +
+        '<br>median: %{median:.1f} ' + unit +
+        '<br>q1: %{q1:.1f} ' + unit +
+        '<br>min: %{lowerfence:.1f} ' + unit +
+        '<br>mean: %{mean:.1f} ' + unit +
+        '<extra>%{x}</extra>',
     };
   });
+  const unitLabel = yAxisConf.title.includes('hours') ? 'hours' : yAxisConf.title.includes('minutes') ? 'minutes' : 'seconds';
   const layout = Object.assign({}, DARK_LAYOUT, {
     title: { text: 'Wait Time by User', font: { color: '#e6edf3' } },
-    yaxis: Object.assign({}, DARK_LAYOUT.yaxis, yAxisConf),
+    yaxis: Object.assign({}, DARK_LAYOUT.yaxis, { title: 'Wait (' + unitLabel + ')' }),
     showlegend: false,
   });
   Plotly.react('chart-wait-user-box', traces, layout, PLOTLY_CONFIG);
