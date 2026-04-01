@@ -590,14 +590,14 @@ function renderChartWaitUserBox() {
   const traces = users.map(user => {
     const vals = (DATA.wait_by_user[user] || []).map(Number);
     const divisor = yAxisConf.title.includes('hours') ? 3600 : yAxisConf.title.includes('minutes') ? 60 : 1;
+    const unit = divisor === 3600 ? ' hr' : divisor === 60 ? ' min' : ' sec';
     return {
       name: user,
       y: vals.map(v => v / divisor),
-      text: vals.map(v => formatSeconds(v)),
       type: 'box',
       marker: { color: getUserColor(user) },
       boxmean: true,
-      hoverinfo: 'y+name',
+      hovertemplate: '%{y:.1f}' + unit + '<extra>%{x}</extra>',
     };
   });
   const unitLabel = yAxisConf.title.includes('hours') ? 'hours' : yAxisConf.title.includes('minutes') ? 'minutes' : 'seconds';
