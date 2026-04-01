@@ -420,8 +420,8 @@ function renderChartMemScatter() {
   }));
   const layout = Object.assign({}, DARK_LAYOUT, {
     title: { text: 'Memory Requested vs Used', font: { color: '#e6edf3' } },
-    xaxis: Object.assign({}, DARK_LAYOUT.xaxis, { title: 'Requested (GB)', rangemode: 'tozero' }),
-    yaxis: Object.assign({}, DARK_LAYOUT.yaxis, { title: 'Used (GB)', rangemode: 'tozero' }),
+    xaxis: Object.assign({}, DARK_LAYOUT.xaxis, { title: 'Requested (GB)', type: 'linear', rangemode: 'tozero' }),
+    yaxis: Object.assign({}, DARK_LAYOUT.yaxis, { title: 'Used (GB)', type: 'linear', rangemode: 'tozero' }),
     showlegend: true,
   });
   Plotly.react('chart-mem-scatter', [refLine, ...userTraces], layout, PLOTLY_CONFIG);
