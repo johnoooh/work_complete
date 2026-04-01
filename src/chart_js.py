@@ -171,21 +171,25 @@ def _chart_jobs_time_js() -> str:
 function renderChartJobsTime() {
   const hours = getFilteredHours();
   const labels = formatHourLabels(hours);
-  const traces = getVisibleUsers().map(user => ({
-    name: user,
-    x: labels,
-    y: hours.map(h => (DATA.hourly_by_user[user] || {})[h] || 0),
-    type: 'scatter',
-    mode: 'none',
-    stackgroup: 'one',
-    fillcolor: getUserColor(user),
-    line: { color: getUserColor(user) },
-    hovertemplate: '%{y} jobs<extra>' + user + '</extra>',
-  }));
+  const traces = getVisibleUsers().map(user => {
+    const yVals = hours.map(h => (DATA.hourly_by_user[user] || {})[h] || 0);
+    return {
+      name: user,
+      x: labels,
+      y: yVals,
+      type: 'scatter',
+      mode: 'none',
+      stackgroup: 'one',
+      fillcolor: getUserColor(user),
+      line: { color: getUserColor(user) },
+      hovertemplate: yVals.map(v => v > 0 ? v + ' jobs<extra>' + user + '</extra>' : ''),
+    };
+  }).filter(t => t.y.some(v => v > 0));
   const layout = Object.assign({}, DARK_LAYOUT, {
     title: { text: 'Total Jobs Over Time', font: { color: '#e6edf3' } },
     xaxis: Object.assign({}, DARK_LAYOUT.xaxis),
     yaxis: Object.assign({}, DARK_LAYOUT.yaxis, { title: 'Jobs' }),
+    hovermode: 'x unified',
     showlegend: true,
   });
   Plotly.react('chart-jobs-time', traces, layout, PLOTLY_CONFIG);
