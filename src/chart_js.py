@@ -110,9 +110,8 @@ function formatHourLabels(hours) {
 
 function formatSeconds(s) {
   s = Math.round(s);
-  if (s < 60) return s + 's';
-  if (s < 300) return Math.floor(s / 60) + 'm ' + (s % 60) + 's';
-  if (s < 3600) return Math.floor(s / 60) + 'm';
+  if (s < 120) return s + 's';
+  if (s < 7200) return Math.floor(s / 60) + 'm';
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
   return m > 0 ? h + 'h ' + m + 'm' : h + 'h';
@@ -588,13 +587,19 @@ function renderChartWaitUserBox() {
   const users = getVisibleUsers();
   const allVals = users.flatMap(u => DATA.wait_by_user[u] || []);
   const yAxisConf = makeTimeYAxis(allVals, 'Wait');
-  const traces = users.map(user => ({
-    name: user,
-    y: (DATA.wait_by_user[user] || []).map(Number),
-    type: 'box',
-    marker: { color: getUserColor(user) },
-    boxmean: true,
-  }));
+  const traces = users.map(user => {
+    const vals = (DATA.wait_by_user[user] || []).map(Number);
+    return {
+      name: user,
+      y: vals,
+      text: vals.map(v => formatSeconds(v)),
+      type: 'box',
+      marker: { color: getUserColor(user) },
+      boxmean: true,
+      hovertext: vals.map(v => formatSeconds(v)),
+      hoverinfo: 'name+text',
+    };
+  });
   const layout = Object.assign({}, DARK_LAYOUT, {
     title: { text: 'Wait Time by User', font: { color: '#e6edf3' } },
     yaxis: Object.assign({}, DARK_LAYOUT.yaxis, yAxisConf),
