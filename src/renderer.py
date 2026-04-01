@@ -141,7 +141,6 @@ def render_dashboard(data: dict) -> str:
   <div class="header">
     <h1>CMOBIC CPU Queue Dashboard</h1>
     <div class="controls">
-      <div id="user-chips"></div>
       <div class="toggle">
         <button class="toggle-btn" data-range="1d" onclick="setRange('1d')">1 Day</button>
         <button class="toggle-btn active" data-range="7d" onclick="setRange('7d')">7 Days</button>
@@ -152,6 +151,8 @@ def render_dashboard(data: dict) -> str:
   <div class="kpi-row">
     {kpi_row}
   </div>
+
+  <div id="user-chips" style="margin-bottom:12px"></div>
 
   <div class="chart-row">
     <div class="chart-box wide" style="position:relative"><div id="chart-jobs-time" style="height:300px"></div><div id="jobs-time-tooltip" style="display:none;position:absolute;background:rgba(22,27,34,0.95);border:1px solid #30363d;border-radius:6px;padding:8px 12px;font-size:12px;color:#e6edf3;pointer-events:none;z-index:10;line-height:1.6;white-space:nowrap"></div></div>
