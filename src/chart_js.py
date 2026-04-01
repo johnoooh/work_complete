@@ -202,6 +202,14 @@ function renderChartJobsTime() {
   const el = document.getElementById('chart-jobs-time');
   Plotly.react(el, traces, layout, PLOTLY_CONFIG);
   // Custom hover: show only users with >0 jobs at the hovered time point
+  el.addEventListener('mousemove', function(e) {
+    const tooltip = document.getElementById('jobs-time-tooltip');
+    if (tooltip && tooltip.style.display === 'block') {
+      const rect = el.getBoundingClientRect();
+      tooltip.style.left = (e.clientX - rect.left + 15) + 'px';
+      tooltip.style.top = (e.clientY - rect.top - 10) + 'px';
+    }
+  });
   el.on('plotly_hover', function(evtData) {
     if (!evtData.points || !evtData.points[0]) return;
     const idx = evtData.points[0].pointIndex;
