@@ -189,7 +189,7 @@ function renderChartJobsTime() {
       stackgroup: 'one',
       fillcolor: hexToRgba(col, 0.5),
       line: { color: col },
-      hoverinfo: 'skip',
+      hoverinfo: 'none',
     };
   }).filter(t => t.y.some(v => v > 0));
   const layout = Object.assign({}, DARK_LAYOUT, {
