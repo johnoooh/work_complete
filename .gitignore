@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Build
+dist/
+build/
+
+# Output
+dashboard.html
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+
+# Superpowers
+.superpowers/
+
+# Environment
+.env
+.env.*
+!.env.example

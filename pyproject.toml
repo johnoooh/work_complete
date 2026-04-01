@@ -1,0 +1,11 @@
+[project]
+name = "cmobic-dashboard"
+version = "0.1.0"
+description = "SLURM job dashboard generator for cmobic_cpu queue"
+requires-python = ">=3.11"
+
+[dependency-groups]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+generate-dashboard = "generate_dashboard:main"
