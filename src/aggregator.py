@@ -53,6 +53,15 @@ def aggregate(jobs: list[dict]) -> dict:
 
     all_hours = sorted(hourly_total.keys())
 
+    # Count concurrent running jobs per user per hour
+    running_by_user = defaultdict(lambda: defaultdict(int))
+    for j in jobs:
+        start_hk = _hour_key(j["start_dt"])
+        end_hk = _hour_key(j["end_dt"])
+        for hk in all_hours:
+            if hk >= start_hk and hk <= end_hk:
+                running_by_user[j["user"]][hk] += 1
+
     hourly_wait_values = defaultdict(list)
     for j in jobs:
         hk = _hour_key(j["submit"])
@@ -155,6 +164,7 @@ def aggregate(jobs: list[dict]) -> dict:
         "user_job_counts": dict(user_job_counts),
         "hourly_total": dict(hourly_total),
         "hourly_by_user": {u: dict(h) for u, h in hourly_by_user.items()},
+        "running_by_user": {u: dict(h) for u, h in running_by_user.items()},
         "hourly_wait": hourly_wait,
         "wait_by_user": dict(wait_by_user),
         "wait_by_user_hourly": wait_by_user_hourly,

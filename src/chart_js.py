@@ -310,6 +310,67 @@ function renderChartUserLines() {
 """
 
 
+def _chart_running_time_js() -> str:
+    return """
+// ── Chart: Running Jobs Over Time (stacked area) ────────────────────────────
+function renderChartRunningTime() {
+  const hours = getFilteredHours();
+  const labels = formatHourLabels(hours);
+  const traces = getVisibleUsers().map(user => {
+    const yVals = hours.map(h => (DATA.running_by_user[user] || {})[h] || 0);
+    const col = getUserColor(user);
+    return {
+      name: user,
+      x: labels,
+      y: yVals,
+      type: 'scatter',
+      mode: 'none',
+      stackgroup: 'one',
+      fillcolor: hexToRgba(col, 0.5),
+      line: { color: col },
+      hoverinfo: 'none',
+    };
+  }).filter(t => t.y.some(v => v > 0));
+  const layout = Object.assign({}, DARK_LAYOUT, {
+    title: { text: 'Running Jobs Over Time', font: { color: '#e6edf3' } },
+    xaxis: Object.assign({}, DARK_LAYOUT.xaxis),
+    yaxis: Object.assign({}, DARK_LAYOUT.yaxis, { title: 'Concurrent Jobs' }),
+    hovermode: 'x',
+    showlegend: true,
+  });
+  const el = document.getElementById('chart-running-time');
+  Plotly.react(el, traces, layout, PLOTLY_CONFIG);
+  el.addEventListener('mousemove', function(e) {
+    const tooltip = document.getElementById('running-time-tooltip');
+    if (tooltip && tooltip.style.display === 'block') {
+      const rect = el.getBoundingClientRect();
+      tooltip.style.left = (e.clientX - rect.left + 15) + 'px';
+      tooltip.style.top = (e.clientY - rect.top - 10) + 'px';
+    }
+  });
+  el.on('plotly_hover', function(evtData) {
+    if (!evtData.points || !evtData.points[0]) return;
+    const idx = evtData.points[0].pointIndex;
+    const lines = [];
+    traces.forEach(t => {
+      const v = t.y[idx];
+      if (v > 0) lines.push('<span style="color:' + t.line.color + '">\u25CF</span> ' + t.name + ': ' + v + ' jobs');
+    });
+    if (!lines.length) return;
+    const tooltip = document.getElementById('running-time-tooltip');
+    if (tooltip) {
+      tooltip.innerHTML = '<b>' + traces[0].x[idx] + '</b><br>' + lines.join('<br>');
+      tooltip.style.display = 'block';
+    }
+  });
+  el.on('plotly_unhover', function() {
+    const tooltip = document.getElementById('running-time-tooltip');
+    if (tooltip) tooltip.style.display = 'none';
+  });
+}
+"""
+
+
 def _chart_drilldown_js() -> str:
     return """
 // ── Chart 5: Drilldown ────────────────────────────────────────────────────────
@@ -695,6 +756,7 @@ function renderAllCharts() {
   renderChartJobsTime();
   renderChartUserBar();
   renderChartUserLines();
+  renderChartRunningTime();
   renderChartMemScatter();
   renderChartWaitOverall();
   renderChartWaitUserBox();
@@ -730,6 +792,7 @@ def get_chart_javascript() -> str:
         _chart_jobs_time_js(),
         _chart_user_bar_js(),
         _chart_user_lines_js(),
+        _chart_running_time_js(),
         _chart_drilldown_js(),
         _chart_mem_scatter_js(),
         _chart_wait_overall_js(),

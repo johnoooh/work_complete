@@ -162,6 +162,10 @@ def render_dashboard(data: dict) -> str:
     <div class="chart-box full"><div id="chart-user-lines" style="height:280px"></div></div>
   </div>
 
+  <div class="chart-row">
+    <div class="chart-box full" style="position:relative"><div id="chart-running-time" style="height:300px"></div><div id="running-time-tooltip" style="display:none;position:absolute;background:rgba(22,27,34,0.95);border:1px solid #30363d;border-radius:6px;padding:8px 12px;font-size:12px;color:#e6edf3;pointer-events:none;z-index:10;line-height:1.6;white-space:nowrap"></div></div>
+  </div>
+
   <div id="drilldown-container" style="display:none">
     <div class="drilldown-header">
       <h3>Drilldown: <span id="drilldown-user-name"></span></h3>
