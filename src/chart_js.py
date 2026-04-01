@@ -55,6 +55,12 @@ function getUserColor(user) {
   const idx = DATA.users.indexOf(user);
   return COLORS[idx % COLORS.length];
 }
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1,3), 16);
+  const g = parseInt(hex.slice(3,5), 16);
+  const b = parseInt(hex.slice(5,7), 16);
+  return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+}
 
 function getFilteredHours() {
   if (currentRange === '1d') {
@@ -173,6 +179,7 @@ function renderChartJobsTime() {
   const labels = formatHourLabels(hours);
   const traces = getVisibleUsers().map(user => {
     const yVals = hours.map(h => (DATA.hourly_by_user[user] || {})[h] || 0);
+    const col = getUserColor(user);
     return {
       name: user,
       x: labels,
@@ -180,16 +187,16 @@ function renderChartJobsTime() {
       type: 'scatter',
       mode: 'none',
       stackgroup: 'one',
-      fillcolor: getUserColor(user),
-      line: { color: getUserColor(user) },
-      hovertemplate: yVals.map(v => v > 0 ? v + ' jobs<extra>' + user + '</extra>' : ''),
+      fillcolor: hexToRgba(col, 0.5),
+      line: { color: col },
+      hovertemplate: '%{y} jobs<extra>' + user + '</extra>',
     };
   }).filter(t => t.y.some(v => v > 0));
   const layout = Object.assign({}, DARK_LAYOUT, {
     title: { text: 'Total Jobs Over Time', font: { color: '#e6edf3' } },
     xaxis: Object.assign({}, DARK_LAYOUT.xaxis),
     yaxis: Object.assign({}, DARK_LAYOUT.yaxis, { title: 'Jobs' }),
-    hovermode: 'x unified',
+    hovermode: 'closest',
     showlegend: true,
   });
   Plotly.react('chart-jobs-time', traces, layout, PLOTLY_CONFIG);
