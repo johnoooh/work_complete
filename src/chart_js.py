@@ -236,14 +236,16 @@ function renderChartJobsTime() {
     if (!evtData.points || !evtData.points[0]) return;
     const idx = evtData.points[0].pointIndex;
     const lines = [];
-    traces.forEach(t => {
+    const liveTraces = el.data || traces;
+    liveTraces.forEach(t => {
+      if (t.visible === 'legendonly') return;
       const v = t.y[idx];
       if (v > 0) lines.push('<span style="color:' + t.line.color + '">\u25CF</span> ' + t.name + ': ' + v + ' jobs');
     });
     if (!lines.length) return;
     const tooltip = document.getElementById('jobs-time-tooltip');
     if (tooltip) {
-      tooltip.innerHTML = '<b>' + traces[0].x[idx] + '</b><br>' + lines.join('<br>');
+      tooltip.innerHTML = '<b>' + liveTraces[0].x[idx] + '</b><br>' + lines.join('<br>');
       tooltip.style.display = 'block';
     }
   });
@@ -371,14 +373,16 @@ function renderChartRunningTime() {
     if (!evtData.points || !evtData.points[0]) return;
     const idx = evtData.points[0].pointIndex;
     const lines = [];
-    traces.forEach(t => {
+    const liveTraces = el.data || traces;
+    liveTraces.forEach(t => {
+      if (t.visible === 'legendonly') return;
       const v = t.y[idx];
       if (v > 0) lines.push('<span style="color:' + t.line.color + '">\u25CF</span> ' + t.name + ': ' + v + ' jobs');
     });
     if (!lines.length) return;
     const tooltip = document.getElementById('running-time-tooltip');
     if (tooltip) {
-      tooltip.innerHTML = '<b>' + traces[0].x[idx] + '</b><br>' + lines.join('<br>');
+      tooltip.innerHTML = '<b>' + liveTraces[0].x[idx] + '</b><br>' + lines.join('<br>');
       tooltip.style.display = 'block';
     }
   });
@@ -761,11 +765,12 @@ function renderChartFailed() {
       y: users.map(u => (failedData[u] || {})[state] || 0),
       type: 'bar',
       marker: { color: STATE_COLORS[state] || '#8b949e' },
-      hovertemplate: state + ': %{y}<extra>%{x}</extra>',
+      hovertemplate: state + ': %{y}<extra></extra>',
     }));
   const layout = Object.assign({}, DARK_LAYOUT, {
     title: { text: 'Failed Jobs by User', font: { color: '#e6edf3' } },
     barmode: 'stack',
+    hovermode: 'x unified',
     xaxis: Object.assign({}, DARK_LAYOUT.xaxis, { title: 'User' }),
     yaxis: Object.assign({}, DARK_LAYOUT.yaxis, { title: 'Job Count' }),
     showlegend: true,
