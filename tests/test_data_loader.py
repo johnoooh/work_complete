@@ -1,5 +1,22 @@
 # tests/test_data_loader.py
-from src.data_loader import load_jobs, enrich_job
+from src.data_loader import load_jobs, enrich_job, _elapsed_to_seconds
+
+
+class TestElapsedToSeconds:
+    def test_zero(self):
+        assert _elapsed_to_seconds("00:00:00") == 0
+
+    def test_hours_minutes(self):
+        assert _elapsed_to_seconds("01:30:00") == 5400
+
+    def test_minutes_seconds(self):
+        assert _elapsed_to_seconds("00:05:30") == 330
+
+    def test_with_days(self):
+        assert _elapsed_to_seconds("1-02:00:00") == 93600
+
+    def test_multi_day(self):
+        assert _elapsed_to_seconds("3-00:00:00") == 259200
 
 
 class TestEnrichJob:
@@ -52,6 +69,21 @@ class TestEnrichJob:
             "max_rss_mb": 50.0, "req_mem_mb": 0.0,
         }
         assert enrich_job(job)["mem_efficiency"] == 0.0
+
+    def test_missing_submit_returns_none(self):
+        job = {"job_name": "x", "start": "2026-03-30T10:00:00",
+               "end": "2026-03-30T10:01:00"}
+        assert enrich_job(job) is None
+
+    def test_missing_start_returns_none(self):
+        job = {"job_name": "x", "submit": "2026-03-30T10:00:00",
+               "end": "2026-03-30T10:01:00"}
+        assert enrich_job(job) is None
+
+    def test_missing_end_returns_none(self):
+        job = {"job_name": "x", "submit": "2026-03-30T10:00:00",
+               "start": "2026-03-30T10:00:00"}
+        assert enrich_job(job) is None
 
 
 class TestLoadJobs:

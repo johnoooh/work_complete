@@ -30,6 +30,24 @@ class TestExtractSampleId:
         name = "some_job_(SAMPLE123-A)"
         assert extract_sample_id(name) == "SAMPLE123-A"
 
+    def test_c_id_with_dash_suffixes(self):
+        assert extract_sample_id("alignment_C-006729-M001-d01_hg38") == "C-006729-M001-d01"
+
+    def test_c_id_with_short_suffix(self):
+        assert extract_sample_id("some_job_(C-006729-T001-d)") == "C-006729-T001-d"
+
+    def test_c_id_with_n_suffix(self):
+        assert extract_sample_id("nf-PIPELINE_(C-006729-N010-d)") == "C-006729-N010-d"
+
+    def test_p_id_with_igo_suffix(self):
+        assert extract_sample_id("job_(P-0070000-T05-IH4)") == "P-0070000-T05-IH4"
+
+    def test_p_id_with_normal_suffix(self):
+        assert extract_sample_id("job_(P-0070000-N08-IM7)") == "P-0070000-N08-IM7"
+
+    def test_custom_sample_in_parens(self):
+        assert extract_sample_id("some_job_(C00_34)") == "C00_34"
+
 
 class TestExtractProcessName:
     def test_nextflow_full_name(self):

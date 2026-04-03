@@ -9,7 +9,7 @@ import re
 _KNOWN_ID_PATTERNS = [
     re.compile(r"s_C_[A-Za-z0-9]+"),           # s_C_ prefixed IDs
     re.compile(r"P-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*"),  # DMP IDs with dash suffixes
-    re.compile(r"C-[A-Za-z0-9]+"),             # C- prefixed IDs
+    re.compile(r"C-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*"),  # C- prefixed IDs with dash suffixes
 ]
 
 # Parenthesized content (likely a sample identifier)
