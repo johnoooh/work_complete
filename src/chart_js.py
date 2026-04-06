@@ -471,14 +471,14 @@ function renderDrilldownSample() {
   ).slice(0, 20);
   const traces = [{
     type: 'bar', orientation: 'h',
-    x: samples.map(s => sampleData[s].count),
+    x: samples.map(s => Number(sampleData[s].count)),
     y: samples,
     marker: { color: getUserColor(selectedUser) },
     hovertemplate: '%{x} jobs<extra>%{y}</extra>',
   }];
   const layout = Object.assign({}, DARK_LAYOUT, {
     title: { text: 'Sample Breakdown: ' + selectedUser, font: { color: '#e6edf3' } },
-    xaxis: Object.assign({}, DARK_LAYOUT.xaxis, { title: 'Job Count' }),
+    xaxis: Object.assign({}, DARK_LAYOUT.xaxis, { title: 'Job Count', type: 'linear' }),
     yaxis: Object.assign({}, DARK_LAYOUT.yaxis),
     margin: Object.assign({}, DARK_LAYOUT.margin, { l: 180 }),
     height: Math.max(200, samples.length * 28 + 80),

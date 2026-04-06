@@ -88,11 +88,11 @@ class TestEnrichJob:
 
 class TestLoadJobs:
     def test_loads_all_jobs(self, sample_jobs_json):
-        jobs = load_jobs(sample_jobs_json, days=7)
+        jobs = load_jobs(sample_jobs_json, days=9999)
         assert len(jobs) == 5
 
     def test_jobs_are_enriched(self, sample_jobs_json):
-        jobs = load_jobs(sample_jobs_json, days=7)
+        jobs = load_jobs(sample_jobs_json, days=9999)
         assert "wait_seconds" in jobs[0]
         assert "process_name" in jobs[0]
 
@@ -102,27 +102,26 @@ class TestLoadJobs:
 
     def test_filters_to_recent_days(self, tmp_path):
         import json
-        old_job = [{"job_id": "999", "job_name": "old_job", "user": "old_user",
-            "state": "COMPLETED", "submit": "2026-02-28T10:00:00",
-            "start": "2026-02-28T10:01:00", "end": "2026-02-28T10:02:00",
-            "elapsed": "00:01:00", "cpu_time_raw": 60, "alloc_cpus": 1,
-            "max_rss_mb": 100.0, "req_mem_mb": 1000.0, "partition": "cmobic_cpu",
-            "req_cpus": 1, "alloc_mem_mb": 1000.0, "node_list": ["node001"],
-            "time_limit": "01:00:00", "total_cpu": "00:01:00.000", "base_job_id": "999",
-            "max_gpu_util": None, "state_by_jobid": None, "req_gpu_type": None,
-            "req_gpus": None, "alloc_gpu_type": None, "alloc_gpus": None}]
-        (tmp_path / "job_2026-02-28.json").write_text(json.dumps(old_job))
+        from datetime import datetime, timedelta
 
-        new_job = [{"job_id": "1000", "job_name": "new_job", "user": "new_user",
-            "state": "COMPLETED", "submit": "2026-03-30T10:00:00",
-            "start": "2026-03-30T10:01:00", "end": "2026-03-30T10:02:00",
-            "elapsed": "00:01:00", "cpu_time_raw": 60, "alloc_cpus": 1,
-            "max_rss_mb": 100.0, "req_mem_mb": 1000.0, "partition": "cmobic_cpu",
-            "req_cpus": 1, "alloc_mem_mb": 1000.0, "node_list": ["node001"],
-            "time_limit": "01:00:00", "total_cpu": "00:01:00.000", "base_job_id": "1000",
-            "max_gpu_util": None, "state_by_jobid": None, "req_gpu_type": None,
-            "req_gpus": None, "alloc_gpu_type": None, "alloc_gpus": None}]
-        (tmp_path / "job_2026-03-30.json").write_text(json.dumps(new_job))
+        today = datetime.now()
+        old_date = (today - timedelta(days=30)).strftime("%Y-%m-%d")
+        new_date = (today - timedelta(days=1)).strftime("%Y-%m-%d")
+
+        def make_job(job_id, date):
+            return {"job_id": job_id, "job_name": f"job_{job_id}", "user": "u",
+                "state": "COMPLETED", "submit": f"{date}T10:00:00",
+                "start": f"{date}T10:01:00", "end": f"{date}T10:02:00",
+                "elapsed": "00:01:00", "cpu_time_raw": 60, "alloc_cpus": 1,
+                "max_rss_mb": 100.0, "req_mem_mb": 1000.0, "partition": "cmobic_cpu",
+                "req_cpus": 1, "alloc_mem_mb": 1000.0, "node_list": ["node001"],
+                "time_limit": "01:00:00", "total_cpu": "00:01:00.000",
+                "base_job_id": job_id, "max_gpu_util": None, "state_by_jobid": None,
+                "req_gpu_type": None, "req_gpus": None, "alloc_gpu_type": None,
+                "alloc_gpus": None}
+
+        (tmp_path / f"job_{old_date}.json").write_text(json.dumps([make_job("999", old_date)]))
+        (tmp_path / f"job_{new_date}.json").write_text(json.dumps([make_job("1000", new_date)]))
 
         jobs = load_jobs(tmp_path, days=7)
         assert len(jobs) == 1
