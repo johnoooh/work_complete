@@ -285,3 +285,8 @@ const DASHBOARD_DATA = {json_data};
 </script>
 </body>
 </html>"""
+
+
+def render_data_json(data: dict) -> str:
+    """Serialize aggregator output to a JSON string for the data file."""
+    return json.dumps(data, default=str)

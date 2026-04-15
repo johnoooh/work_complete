@@ -2,7 +2,7 @@
 import json
 import re
 
-from src.renderer import render_dashboard, _format_seconds
+from src.renderer import render_dashboard, render_data_json, _format_seconds
 from src.data_loader import enrich_job
 from src.aggregator import aggregate
 
@@ -110,3 +110,23 @@ class TestRenderer:
         })])
         html = render_dashboard(data)
         assert "kpi-bad" in html
+
+
+class TestRenderDataJson:
+    def test_returns_valid_json(self, sample_jobs):
+        data = _make_data(sample_jobs)
+        result = render_data_json(data)
+        parsed = json.loads(result)
+        assert isinstance(parsed, dict)
+
+    def test_contains_expected_keys(self, sample_jobs):
+        data = _make_data(sample_jobs)
+        parsed = json.loads(render_data_json(data))
+        assert "users" in parsed
+        assert "kpis" in parsed
+        assert "all_dates" in parsed
+
+    def test_roundtrip_preserves_users(self, sample_jobs):
+        data = _make_data(sample_jobs)
+        parsed = json.loads(render_data_json(data))
+        assert parsed["users"] == data["users"]
