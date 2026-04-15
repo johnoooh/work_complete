@@ -1,6 +1,5 @@
 # tests/test_renderer.py
 import json
-import re
 
 from src.renderer import render_dashboard, render_data_json, _format_seconds
 from src.data_loader import enrich_job
@@ -45,9 +44,10 @@ class TestRenderer:
         html = render_dashboard(_make_data(sample_jobs))
         assert "plotly" in html.lower()
 
-    def test_contains_dashboard_data(self, sample_jobs):
+    def test_html_contains_fetch_bootstrap(self, sample_jobs):
         html = render_dashboard(_make_data(sample_jobs))
-        assert "DASHBOARD_DATA" in html
+        assert "work_complete_data_latest.json" in html
+        assert "fetch(" in html
 
     def test_contains_toggle_buttons(self, sample_jobs):
         html = render_dashboard(_make_data(sample_jobs))
@@ -78,12 +78,9 @@ class TestRenderer:
         assert "Generated:" in html
         assert "class=\"footer\"" in html
 
-    def test_valid_json_in_output(self, sample_jobs):
+    def test_html_does_not_embed_data(self, sample_jobs):
         html = render_dashboard(_make_data(sample_jobs))
-        match = re.search(r"const DASHBOARD_DATA = ({.*?});\n", html, re.DOTALL)
-        assert match, "DASHBOARD_DATA not found"
-        parsed = json.loads(match.group(1))
-        assert parsed["kpis"]["total_jobs"] == 5
+        assert "const DASHBOARD_DATA" not in html
 
     def test_kpi_warn_class_for_moderate_mem_eff(self):
         """mem_efficiency between 0.3 and 0.6 should get kpi-warn."""

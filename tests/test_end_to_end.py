@@ -1,6 +1,4 @@
 # tests/test_end_to_end.py
-import json
-import re
 from pathlib import Path
 
 from src.aggregator import aggregate
@@ -53,14 +51,13 @@ class TestEndToEnd:
         ]:
             assert chart_id in html
 
-    def test_pipeline_html_has_valid_json_data(self):
+    def test_pipeline_html_has_fetch_bootstrap(self):
         jobs = load_jobs(FIXTURES_DIR, days=9999)
         data = aggregate(jobs)
         html = render_dashboard(data)
-        match = re.search(r"const DASHBOARD_DATA = ({.*?});\n", html, re.DOTALL)
-        assert match, "DASHBOARD_DATA not found in HTML"
-        parsed = json.loads(match.group(1))
-        assert parsed["kpis"]["total_jobs"] == 15
+        assert "fetch(" in html
+        assert "work_complete_data_latest.json" in html
+        assert "const DASHBOARD_DATA" not in html
 
     def test_empty_directory_produces_valid_html(self, tmp_path):
         jobs = load_jobs(tmp_path, days=7)

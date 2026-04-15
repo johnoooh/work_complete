@@ -140,7 +140,6 @@ def render_dashboard(data: dict) -> str:
 
     days = len(data.get("all_dates", []))
     jobs = kpis.get("total_jobs", 0)
-    json_data = json.dumps(data, default=str)
     chart_js = get_chart_javascript()
 
     return f"""<!DOCTYPE html>
@@ -156,6 +155,7 @@ def render_dashboard(data: dict) -> str:
 </head>
 <body>
 <div class="dashboard">
+  <div id="loading-overlay" style="position:fixed;inset:0;background:#0d1117;display:flex;align-items:center;justify-content:center;z-index:9999;font-size:1.1rem;color:#8b949e;">Loading dashboard data…</div>
 
   <div class="header">
     <h1>CMOBIC CPU Queue Dashboard</h1>
@@ -280,8 +280,24 @@ def render_dashboard(data: dict) -> str:
 </div>
 
 <script>
-const DASHBOARD_DATA = {json_data};
 {chart_js}
+
+(function () {{
+  var overlay = document.getElementById('loading-overlay');
+  fetch('./work_complete_data_latest.json')
+    .then(function (r) {{
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }})
+    .then(function (data) {{
+      window.DASHBOARD_DATA = data;
+      if (overlay) overlay.remove();
+      initCharts(data);
+    }})
+    .catch(function (err) {{
+      if (overlay) overlay.innerHTML = '<p style="color:#f85149;padding:2rem;">Failed to load dashboard data: ' + err.message + '</p>';
+    }});
+}})();
 </script>
 </body>
 </html>"""
