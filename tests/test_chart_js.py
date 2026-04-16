@@ -49,3 +49,7 @@ class TestGetChartJavascript:
         assert "getVisibleUsers" in js
         assert "toggleUser" in js
         assert "updateChips" in js
+
+    def test_contains_init_charts_function(self):
+        js = get_chart_javascript()
+        assert "function initCharts" in js

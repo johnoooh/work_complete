@@ -799,7 +799,9 @@ function renderAllCharts() {
   if (selectedUser) renderDrilldown();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function initCharts(data) {
+  window.DASHBOARD_DATA = data;
+
   // Build user filter chips
   const chipContainer = document.getElementById('user-chips');
   if (chipContainer) {
@@ -819,7 +821,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   updateKPIs();
   renderAllCharts();
-});
+}
 """
 
 
