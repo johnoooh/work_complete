@@ -1,7 +1,11 @@
 # tests/test_end_to_end.py
 import json
+import subprocess
+import sys
 import tempfile
 from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 from src.aggregator import aggregate
 from src.data_loader import load_jobs
@@ -90,17 +94,17 @@ class TestEndToEnd:
 class TestDualFileOutput:
     def test_generate_dashboard_writes_json_file(self):
         """generate_dashboard main() writes both .html and .json when --output-json given."""
-        import subprocess, sys
-        jobs_dir = Path("tests/fixtures")
+        jobs_dir = PROJECT_ROOT / "tests" / "fixtures"
         with tempfile.TemporaryDirectory() as tmpdir:
             out_html = Path(tmpdir) / "dashboard.html"
             out_json = Path(tmpdir) / "dashboard.json"
             result = subprocess.run(
-                [sys.executable, "generate_dashboard.py",
+                [sys.executable, str(PROJECT_ROOT / "generate_dashboard.py"),
                  "--data-dir", str(jobs_dir),
                  "--output", str(out_html),
                  "--output-json", str(out_json)],
-                capture_output=True, text=True
+                capture_output=True, text=True,
+                cwd=str(PROJECT_ROOT),
             )
             assert result.returncode == 0, result.stderr
             assert out_html.exists()
@@ -110,15 +114,15 @@ class TestDualFileOutput:
 
     def test_generate_dashboard_json_defaults_to_html_path(self):
         """Without --output-json, json file is written next to html with .json extension."""
-        import subprocess, sys
-        jobs_dir = Path("tests/fixtures")
+        jobs_dir = PROJECT_ROOT / "tests" / "fixtures"
         with tempfile.TemporaryDirectory() as tmpdir:
             out_html = Path(tmpdir) / "dashboard.html"
             result = subprocess.run(
-                [sys.executable, "generate_dashboard.py",
+                [sys.executable, str(PROJECT_ROOT / "generate_dashboard.py"),
                  "--data-dir", str(jobs_dir),
                  "--output", str(out_html)],
-                capture_output=True, text=True
+                capture_output=True, text=True,
+                cwd=str(PROJECT_ROOT),
             )
             assert result.returncode == 0, result.stderr
             out_json = Path(tmpdir) / "dashboard.json"
