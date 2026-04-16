@@ -30,12 +30,18 @@ fi
 
 DATE_STAMP=$(date +"%m_%d")
 FILENAME="work_complete_${DATE_STAMP}.html"
+JSON_FILENAME="work_complete_${DATE_STAMP}.json"
 OUTPUT_PATH="${OUTPUT_DIR%/}/${FILENAME}"
+JSON_PATH="${OUTPUT_DIR%/}/${JSON_FILENAME}"
 LATEST_LINK="${OUTPUT_DIR%/}/work_complete_dashboard_latest.html"
+LATEST_JSON_LINK="${OUTPUT_DIR%/}/work_complete_data_latest.json"
 
 cd "$PROJECT_DIR"
-python generate_dashboard.py --data-dir "$DATA_DIR" --output "$OUTPUT_PATH"
+python generate_dashboard.py --data-dir "$DATA_DIR" --output "$OUTPUT_PATH" --output-json "$JSON_PATH"
 ln -sf "$OUTPUT_PATH" "$LATEST_LINK"
+ln -sf "$JSON_PATH" "$LATEST_JSON_LINK"
 
 echo "Dashboard: $OUTPUT_PATH"
+echo "Data:      $JSON_PATH"
 echo "Latest:    $LATEST_LINK -> $FILENAME"
+echo "Latest:    $LATEST_JSON_LINK -> $JSON_FILENAME"
