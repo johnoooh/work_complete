@@ -1,4 +1,6 @@
 # tests/test_end_to_end.py
+import json
+import tempfile
 from pathlib import Path
 
 from src.aggregator import aggregate
@@ -83,3 +85,41 @@ class TestEndToEnd:
         assert "C-00ABC" in vurals_samples
         assert "s_C_ABCDE" in vurals_samples
         assert "s_C_FGHIJ" in vurals_samples
+
+
+class TestDualFileOutput:
+    def test_generate_dashboard_writes_json_file(self):
+        """generate_dashboard main() writes both .html and .json when --output-json given."""
+        import subprocess, sys
+        jobs_dir = Path("tests/fixtures")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            out_html = Path(tmpdir) / "dashboard.html"
+            out_json = Path(tmpdir) / "dashboard.json"
+            result = subprocess.run(
+                [sys.executable, "generate_dashboard.py",
+                 "--data-dir", str(jobs_dir),
+                 "--output", str(out_html),
+                 "--output-json", str(out_json)],
+                capture_output=True, text=True
+            )
+            assert result.returncode == 0, result.stderr
+            assert out_html.exists()
+            assert out_json.exists()
+            parsed = json.loads(out_json.read_text())
+            assert "users" in parsed
+
+    def test_generate_dashboard_json_defaults_to_html_path(self):
+        """Without --output-json, json file is written next to html with .json extension."""
+        import subprocess, sys
+        jobs_dir = Path("tests/fixtures")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            out_html = Path(tmpdir) / "dashboard.html"
+            result = subprocess.run(
+                [sys.executable, "generate_dashboard.py",
+                 "--data-dir", str(jobs_dir),
+                 "--output", str(out_html)],
+                capture_output=True, text=True
+            )
+            assert result.returncode == 0, result.stderr
+            out_json = Path(tmpdir) / "dashboard.json"
+            assert out_json.exists()
