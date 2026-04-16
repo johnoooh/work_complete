@@ -53,3 +53,4 @@ class TestGetChartJavascript:
     def test_contains_init_charts_function(self):
         js = get_chart_javascript()
         assert "function initCharts" in js
+        assert "DOMContentLoaded" not in js
