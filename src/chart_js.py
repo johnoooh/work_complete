@@ -784,19 +784,26 @@ def _main_js() -> str:
     return """
 // ── Main ──────────────────────────────────────────────────────────────────────
 function renderAllCharts() {
-  renderChartJobsTime();
-  renderChartUserBar();
-  renderChartUserLines();
-  renderChartRunningTime();
-  renderChartMemScatter();
-  renderChartWaitOverall();
-  renderChartWaitUserBox();
-  renderChartWaitUserLine();
-  renderChartCpuEff();
-  renderChartMemEff();
-  renderChartNodeHeat();
-  renderChartFailed();
-  if (selectedUser) renderDrilldown();
+  const charts = [
+    renderChartJobsTime,
+    renderChartUserBar,
+    renderChartUserLines,
+    renderChartRunningTime,
+    renderChartMemScatter,
+    renderChartWaitOverall,
+    renderChartWaitUserBox,
+    renderChartWaitUserLine,
+    renderChartCpuEff,
+    renderChartMemEff,
+    renderChartNodeHeat,
+    renderChartFailed,
+  ];
+  charts.forEach(fn => {
+    try { fn(); } catch (e) { console.error(fn.name + ' failed:', e); }
+  });
+  if (selectedUser) {
+    try { renderDrilldown(); } catch (e) { console.error('renderDrilldown failed:', e); }
+  }
 }
 
 function initCharts(data) {
