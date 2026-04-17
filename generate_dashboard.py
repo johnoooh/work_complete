@@ -16,6 +16,8 @@ def main():
         help="Output HTML file path (default: dashboard.html)")
     parser.add_argument("--output-json", type=Path, default=None,
         help="Output JSON data file path (default: same as --output with .json extension)")
+    parser.add_argument("--days", type=int, default=14,
+        help="Number of days of job history to include (default: 14)")
     args = parser.parse_args()
 
     if not args.data_dir.is_dir():
@@ -23,9 +25,9 @@ def main():
 
     json_out = args.output_json if args.output_json else args.output.with_suffix(".json")
 
-    jobs = load_jobs(args.data_dir, days=14)
+    jobs = load_jobs(args.data_dir, days=args.days)
     if not jobs:
-        print(f"Warning: No job data found in {args.data_dir} for the last 14 days")
+        print(f"Warning: No job data found in {args.data_dir} for the last {args.days} days")
 
     data = aggregate(jobs) if jobs else aggregate([])
     html = render_dashboard(data)
@@ -37,7 +39,7 @@ def main():
     args.output.write_text(html)
     json_out.write_text(json_str)
 
-    print(f"Dashboard: {args.output} ({len(jobs)} jobs from {len(data.get('all_dates', []))} days)")
+    print(f"Dashboard: {args.output} ({len(jobs)} jobs from {len(data.get('all_dates', []))} days, {args.days}-day window)")
     print(f"Data:      {json_out}")
 
 
