@@ -5,7 +5,7 @@
 def _base_js() -> str:
     return """
 // ── Constants & State ────────────────────────────────────────────────────────
-const DATA = DASHBOARD_DATA;
+let DATA;
 const PLOTLY_CONFIG = { responsive: true, displayModeBar: false };
 const DARK_LAYOUT = {
   paper_bgcolor: '#0d1117',
@@ -800,7 +800,7 @@ function renderAllCharts() {
 }
 
 function initCharts(data) {
-  window.DASHBOARD_DATA = data;
+  DATA = data;
 
   // Build user filter chips
   const chipContainer = document.getElementById('user-chips');
