@@ -126,7 +126,8 @@ function secondsTickFormat(values) {
 }
 
 function makeTimeYAxis(values, baseTitle) {
-  const maxVal = Math.max(...values.filter(v => v != null && !isNaN(v)), 0);
+  const filtered = values.filter(v => v != null && !isNaN(v));
+  const maxVal = filtered.length > 0 ? filtered.reduce((a, b) => Math.max(a, b), 0) : 0;
   if (maxVal >= 3600) {
     // Pick step so we get 5-10 ticks
     let stepH = 1;
@@ -513,7 +514,8 @@ function renderChartMemScatter() {
     byUser[pt.user].y.push(Number(pt.max_rss_mb) / 1024);
     byUser[pt.user].text.push(pt.job_name);
   });
-  const maxVal = Math.max(0.1, ...Object.values(byUser).flatMap(d => [...d.x, ...d.y]));
+  const allPts = Object.values(byUser).flatMap(d => [...d.x, ...d.y]);
+  const maxVal = allPts.length > 0 ? allPts.reduce((a, b) => Math.max(a, b), 0.1) : 0.1;
   const refLine = {
     name: 'req = used',
     x: [0, maxVal], y: [0, maxVal],
